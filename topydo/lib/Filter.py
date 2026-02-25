@@ -17,6 +17,7 @@
 import re
 
 from topydo.lib.Config import config
+from topydo.lib.Importance import importance
 from topydo.lib.RelativeDate import relative_date_to_date
 from topydo.lib.Utils import date_string_to_date
 
@@ -302,6 +303,23 @@ class OrdinalTagFilter(OrdinalFilter):
         return self.compare_operands(operand1, operand2)
 
 
+_IMPORTANCE_MATCH = r"importan(t|ce):" + _OPERATOR_MATCH + _VALUE_MATCH
+
+
+class ImportanceFilter(OrdinalFilter):
+    def __init__(self, p_expression):
+        super().__init__(p_expression, _IMPORTANCE_MATCH)
+
+    def match(self, p_todo):
+        try:
+            operand1 = importance(p_todo)
+            operand2 = int(self.value)
+        except ValueError:
+            return False
+
+        return self.compare_operands(operand1, operand2)
+
+
 class _DateAttributeFilter(OrdinalFilter):
     def __init__(self, p_expression, p_match, p_getter):
         super().__init__(p_expression, p_match)
@@ -367,12 +385,15 @@ class PriorityFilter(OrdinalFilter):
 
         return self.compare_operands(operand1, operand2)
 
+
 MATCHES = [
     (_CREATED_MATCH, CreationFilter),
     (_COMPLETED_MATCH, CompletionFilter),
+    (_IMPORTANCE_MATCH, ImportanceFilter),
     (_ORDINAL_TAG_MATCH, OrdinalTagFilter),
     (_PRIORITY_MATCH, PriorityFilter),
 ]
+
 
 def get_filter_list(p_expression):
     """

@@ -471,6 +471,53 @@ class CompletionFilterTest(TopydoTest):
         self.assertEqual(result[1].source(), self.todo3)
 
 
+class ImportanceFilterTest(TopydoTest):
+    def setUp(self):
+        super().setUp()
+
+        self.todos = load_file("test/data/SorterTest8.txt")
+
+    def tests_filter1(self):
+        cf = Filter.ImportanceFilter("importance:<=3")
+
+        result = cf.filter(self.todos)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].source(), self.todos[2].source())
+        self.assertEqual(result[1].source(), self.todos[4].source())
+
+    def tests_filter2(self):
+        cf = Filter.ImportanceFilter("importance:5")
+
+        result = cf.filter(self.todos)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].source(), self.todos[0].source())
+        self.assertEqual(result[1].source(), self.todos[1].source())
+
+    def tests_filter3(self):
+        cf = Filter.ImportanceFilter("importance:>5")
+
+        result = cf.filter(self.todos)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].source(), self.todos[3].source())
+
+    def tests_filter4(self):
+        cf = Filter.ImportanceFilter("importance:!5")
+
+        result = cf.filter(self.todos)
+
+        self.assertEqual(len(result), 3)
+
+    def tests_filter5(self):
+        cf = Filter.ImportanceFilter("importance:foo")
+
+        result = cf.filter(self.todos)
+
+        self.assertEqual(len(result), 0)
+
+
 class PriorityFilterTest(TopydoTest):
     def setUp(self):
         super().setUp()
